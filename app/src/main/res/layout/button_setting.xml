@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00ff0000">
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="70dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginLeft="@dimen/fab_margin"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:onClick="clickfab"
+        app:backgroundTint="@color/colorPrimary"
+        app:fabSize="normal"
+        app:layout_anchor="@+id/linearLayout"
+        app:srcCompat="@drawable/ic_action_name" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="0.19"
+            android:background="#d6bec0ce"
+            android:orientation="horizontal">
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/serchlayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/adView"
+            android:layout_weight="0.19"
+            android:background="#d6bec0ce"
+            android:orientation="horizontal"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="503dp">
+
+
+            <EditText
+                android:id="@+id/editTextQuery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="#00ff0000"
+                android:ems="10"
+                android:hint="검색어를 입력해주세요." />
+
+            <Button
+                android:id="@+id/buttonSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#ffffffff"
+                android:text="검색" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.19"
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="503dp"
+        android:background="#d6bec0ce"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">>
+
+        <ImageButton
+            android:id="@+id/roadfind"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#00ff0000"
+            android:onClick="chaRoadFind"
+            app:srcCompat="@drawable/roadfind2" />
+
+        <ImageButton
+            android:id="@+id/sendmms"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+
+            android:backgroundTint="#00ff0000"
+            android:onClick="sendMMS"
+            app:srcCompat="@drawable/mmsicon2" />
+
+        <ImageButton
+            android:id="@+id/mapTypeSet"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+
+            android:backgroundTint="#00ff0000"
+            android:onClick="mapTypeSetting"
+            app:srcCompat="@drawable/roadmap2" />
+
+        <ImageButton
+            android:id="@+id/poiTypeSet"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+
+            android:backgroundTint="#00ff0000"
+            android:onClick="poiTypeSetting"
+            app:srcCompat="@drawable/sp" />
+
+        <ImageButton
+            android:id="@+id/myLocation"
+            android:layout_width="45dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#00ff0000"
+            android:onClick="myLocation"
+            app:srcCompat="@drawable/ic_my_location_true12" />
+
+
+        <ImageView
+            android:id="@+id/iv_image"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:onClick="clickImage"
+            app:srcCompat="@android:drawable/ic_menu_camera"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="503dp" />
+
+
+    </LinearLayout>
+
+
+
+    <!--  <android.support.design.widget.FloatingActionButton
+          android:id="@+id/floatingActionButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="@dimen/fab_margin"
+          android:layout_marginRight="@dimen/fab_margin"
+          android:onClick="clickfab"
+          app:backgroundTint="@color/colorPrimary"
+          app:fabSize="normal"
+          app:layout_anchor="@+id/linearLayout"
+          app:srcCompat="@drawable/ic_action_name"
+          android:layout_above="@+id/roadfind"
+          android:layout_centerHorizontal="true" />
+
+      <ImageButton
+          android:id="@+id/mapTypeSet"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:backgroundTint="#00ff0000"
+          android:onClick="mapTypeSetting"
+          app:srcCompat="@drawable/roadmap2"
+          android:layout_alignTop="@+id/floatingActionButton"
+          android:layout_toEndOf="@+id/poiTypeSet" />
+
+      <ImageButton
+          android:id="@+id/roadfind"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:backgroundTint="#00ff0000"
+          android:onClick="roadFind"
+          app:srcCompat="@drawable/roadfind2"
+          android:layout_alignParentBottom="true"
+          android:layout_alignEnd="@+id/floatingActionButton" />
+
+      <ImageView
+          android:id="@+id/iv_image"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:onClick="clickImage"
+          app:srcCompat="@android:drawable/ic_menu_camera"
+          tools:layout_editor_absoluteX="8dp"
+          tools:layout_editor_absoluteY="503dp"
+          android:layout_alignParentBottom="true"
+          android:layout_alignEnd="@+id/myLocation"
+          android:layout_alignStart="@+id/myLocation"
+          android:background="#A6ffffff"/>
+
+      <ImageButton
+          android:id="@+id/sendmms"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:backgroundTint="#00ff0000"
+          android:onClick="sendMMS"
+          app:srcCompat="@drawable/mmsicon2"
+          android:layout_alignTop="@+id/floatingActionButton"
+          android:layout_toStartOf="@+id/roadfind" />
+
+      <ImageButton
+          android:id="@+id/poiTypeSet"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:backgroundTint="#00ff0000"
+          android:onClick="poiTypeSetting"
+          app:srcCompat="@drawable/sp"
+          android:layout_marginBottom="36dp"
+          android:layout_alignBottom="@+id/sendmms"
+          android:layout_toEndOf="@+id/sendmms" />
+
+      <ImageButton
+          android:id="@+id/myLocation"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:backgroundTint="#00ff0000"
+          android:onClick="myLocation"
+          app:srcCompat="@drawable/ic_my_location_true12"
+          android:layout_marginTop="25dp"
+          android:layout_below="@+id/allow"
+          android:layout_alignStart="@+id/allow" />
+
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_weight="0.19"
+          android:orientation="horizontal"
+          tools:layout_editor_absoluteX="8dp"
+          tools:layout_editor_absoluteY="503dp"
+          android:layout_alignParentBottom="true"
+          android:layout_alignParentStart="true"
+          android:background="#A6ffffff">
+
+
+      </LinearLayout>-->
+
+
+</RelativeLayout>
