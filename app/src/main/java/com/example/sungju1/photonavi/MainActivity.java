@@ -37,7 +37,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
     Dialog dialog;
     Dialog videodialog;
     Uri videoUri;
-    VideoView videoView;
+
     ImageView iv;
     String balloonText;//현재 좌표값이지만 지오코딩 후 주소넣기
     AllowControlView allowControlView;
@@ -449,10 +448,10 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
                 } else if (items[item].equals("동영상촬영")) {
                     ContentValues values = new ContentValues();
-                    //values.put(MediaStore.Video.Media.TITLE, "PhotoNavi_");
+                    values.put(MediaStore.Video.Media.TITLE, "PhotoNavi_");
                     values.put(MediaStore.META_DATA_STILL_IMAGE_CAMERA_PREWARM_SERVICE, true);
                     mCapturedImageURI = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
-                    uniUri = mCapturedImageURI;
+                    MainActivity.uniUri = mCapturedImageURI;
                     Intent intentVideo = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
                     intentVideo.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedImageURI);
                     startActivityForResult(intentVideo, video_Capture_REQUEST);
@@ -539,12 +538,12 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
                         //      ivImage.setImageBitmap(cameraBitmap);
                         iv.setImageBitmap(cameraBitmap);
-                        getImageDetail(cameraUrl);
+
                         videoUri = null;
                         // getImageDetail(getRealPathFromURI(mCapturedImageURI));
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }
+                    }getImageDetail(cameraUrl);
                 }else {
                     Toast.makeText(this, "나중에 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                 }
@@ -569,16 +568,23 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
             }
             //동영상  촬영
             case video_Capture_REQUEST: {
+                Log.d("시발", String.valueOf(mCapturedImageURI));
+              /*  String vidioaUrl = getVideoPath(mCapturedImageURI);
+                videoUri = mCapturedImageURI;
+
+                getImageDetail(vidioaUrl);*/
                 videoUri = data.getData();
                 uniUri = videoUri;
-                    getImageDetail(getRealPathFromURI(videoUri));
+                getImageDetail(getVideoRealPathFromURI(videoUri));
                 break;
+
+
             }
                 //동영상 가져오기
             case video_REQUEST: {
                 videoUri = data.getData();
                 uniUri = videoUri;
-                getImageDetail(getRealPathFromURI(videoUri));
+                getImageDetail(getVideoRealPathFromURI(videoUri));
                 break;
             }
         }
@@ -590,6 +596,42 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
      * @param url url
      * @return real path
      */
+    public String getVideoPath(Uri url) {
+        try {
+
+            Cursor cursor = getContentResolver().query(url, null, null, null, null);
+
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+            cursor.moveToFirst();
+
+            return cursor.getString(column_index);
+        } catch (Exception e) {
+            return url.getPath();
+        }
+    }
+
+    /**
+     * Method to get real path from content path
+     *
+     * @param contentURI content path
+     * @return real path
+     */
+    protected String getVideoRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) {
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
+    }
+
+
+
     public String getImagePath(Uri url) {
         try {
 
@@ -632,9 +674,9 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
 
     // file Final 로 인해서 상수로 만든다 else 부분에서 쓰기위하여
-    protected void getImageDetail(final String file) {
-        Double latitude;
-        Double longitude;
+    protected void getImageDetail( String file) {
+        Double latitude = null;
+        Double longitude ;
 
         try {
             ExifInterface exifInterface = new ExifInterface(file);
@@ -658,55 +700,56 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
                     Cursor cursor = getContentResolver().query(uniUri, null, null, null, null);
 
-                    Intent intent = getIntent();
-                    if (Intent.ACTION_SEND.equals(action)) {
+
+                        try {
+                            cursor.moveToFirst();
 
 
-                        AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-
-                        dialog.setTitle("사진에 위치정보가 없습니다.....");
-
-
-                        // OK 버튼 이벤트
-                        dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                Toast.makeText(MainActivity.this, "공유받은 사진을 다시한번 확인해주세요", Toast.LENGTH_SHORT).show();
-                                uniUri = null;
-                                // 위치 추가할떈 이거 푸셈
-                                plusLocation = "GO";
-
-                            }
-                        });
-                        // Cancel 버튼 이벤트
-                        dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                uniUri = null;
-                                dialog.cancel();
-                            }
-                        });
-                        dialog.show();
-
-
-                    } else {
-                        cursor.moveToFirst();
-
-
-                        latitude = cursor.getDouble(
-                                cursor.getColumnIndex(
-                                        MediaStore.Images.ImageColumns.LATITUDE)); // 위도
-                        longitude = cursor.getDouble(
-                                cursor.getColumnIndex(
-                                        MediaStore.Images.ImageColumns.LONGITUDE)); // 경도
+                            latitude = cursor.getDouble(
+                                    cursor.getColumnIndex(
+                                            MediaStore.Images.ImageColumns.LATITUDE)); // 위도
+                            longitude = cursor.getDouble(
+                                    cursor.getColumnIndex(
+                                            MediaStore.Images.ImageColumns.LONGITUDE)); // 경도
 
                         if (latitude != 0.0) {
                             MARKER_POINT = MapPoint.mapPointWithGeoCoord(latitude, longitude);
                             geoCoder = new MapReverseGeoCoder(daumAPI_KEY, MARKER_POINT, MainActivity.this, MainActivity.this);
-                            geoCoder.startFindingAddress();
+                            geoCoder.startFindingAddress(); }
+                        }
+                        catch (Exception e1){
 
-                        } else {
-                            //Toast.makeText(this, "사진의 위치정보가 없습니다.", Toast.LENGTH_LONG).show();
 
+                            AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+
+                            dialog.setTitle("사진에 위치정보가 없습니다.....");
+
+
+                            // OK 버튼 이벤트
+                            dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    Toast.makeText(MainActivity.this, "공유받은 사진을 저장후 다시 한번 확인하거나 확인 버튼을 누른 후 위치를 수동으로 추가해주세요", Toast.LENGTH_SHORT).show();
+                                    // 위치 추가할떈 이거 푸셈
+                                    plusLocation = "GO";
+
+                                }
+                            });
+                            // Cancel 버튼 이벤트
+                            dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    uniUri = null;
+                                    dialog.cancel();
+                                }
+                            });
+                            dialog.show();
+
+                    }
+                    Intent intent = getIntent();
+                    if (Intent.ACTION_SEND.equals(action)) {
+                        //Toast.makeText(this, "사진의 위치정보가 없습니다.", Toast.LENGTH_LONG).show();
+                    }else if(latitude != 0.0) {
+                    }else{
 
                             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
 
@@ -734,7 +777,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
                         }
 
-                    }
+                    //}
                     cursor.close();
                 } catch (NullPointerException i) {
                     i.printStackTrace();
@@ -750,6 +793,10 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
 
     }
+
+
+
+
 
     public void clickImage(View view) {
         if (uniUri == null) {
