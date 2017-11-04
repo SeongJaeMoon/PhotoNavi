@@ -23,15 +23,9 @@ android {
         }
 
     }
-    splits {
-        abi {
-            enable true
-            reset()
-            include 'armeabi-v7a', 'armeabi'
-            universalApk false
-        }
 
-    }
+
+
     dependencies {
         compile fileTree(include: ['*.jar'], dir: 'libs')
         androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -48,5 +42,6 @@ android {
     }
 }
 dependencies {
-    compile 'com.google.android.gms:play-services-ads:11.0.2'
+    compile 'com.google.android.gms:play-services-ads:11.2.0'
 }
+apply plugin: 'com.google.gms.google-services'

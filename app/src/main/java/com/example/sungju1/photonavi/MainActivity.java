@@ -299,9 +299,9 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
     RelativeLayout naviLayout;
     RelativeLayout.LayoutParams layoutParams;
     Window window;
+    public static String type;
 
 
-    // 공유받은 Data 처리!
 
 
     @Override
@@ -367,12 +367,13 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
        type = reIntent.getType();*/
 
         if (uniUri != null) {
+            if (type == "image/*") {
+                iv.setImageURI(uniUri);
+                getImageDetail(getRealPathFromURI(uniUri));
+            }else{
+                getImageDetail(getVideoRealPathFromURI(uniUri));
+            }
 
-            //    ivImage.setImageURI(uri);
-            iv.setImageURI(uniUri);
-            getImageDetail(getRealPathFromURI(uniUri));
-            //phoneNum.setText(action);
-            // uniUri = uri;
         }
 
         loadingDialogActivity = new LoadingDialogActivity();
@@ -1495,8 +1496,8 @@ JPEG 파일로 저장하는 과정이며 CompressFormat 2번째 인자는 퀄리
                 } else if (uniUri.toString().contains("video")) {
                     sendIntent.setType("video/*");
                 }
-                startActivity(Intent.createChooser(sendIntent, "선택해주세요"));
-
+               // startActivity(Intent.createChooser(sendIntent, "선택해주세요"));
+                startActivity(sendIntent);
     }
 
     public void textClick(View view) {

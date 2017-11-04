@@ -23,7 +23,7 @@ import com.google.android.gms.ads.MobileAds;
 
 public class HomeActivity extends ActivityGroup {
     private AdView mAdView;
-    TabHost tabHost;
+    public static TabHost tabHost;
     private static final int CAMERA_REQUEST = 1000;
     private static final int GALLERY_REQUEST = 1001;
     private static final int video_REQUEST = 2001;
@@ -156,7 +156,9 @@ public class HomeActivity extends ActivityGroup {
         tabHost.addTab(tabSpecTab4);
 
         tabHost.setCurrentTab(0);
-
+        if(MainActivity.type !=null) {
+            tabHost.setCurrentTab(1);
+        }
     }
 
     @Override
@@ -178,6 +180,8 @@ public class HomeActivity extends ActivityGroup {
                 break;
             }
             case video_Capture_REQUEST: {
+                videoUri = data.getData();
+                MainActivity.uniUri = videoUri;
                 tabHost.setCurrentTab(1);
                 break;
             }

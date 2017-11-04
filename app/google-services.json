@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "728768777675",
+    "firebase_url": "https://photonavi-5fb32.firebaseio.com",
+    "project_id": "photonavi-5fb32",
+    "storage_bucket": "photonavi-5fb32.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:728768777675:android:03c436e7300c7141",
+        "android_client_info": {
+          "package_name": "com.example.sungju1.photonavi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "728768777675-kk0loqgdkb3sj3rrn7ag04ar8khiu9qq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8q2cO8_fawauv8ZWv-SKgWpXR345Dnw0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -87,18 +87,15 @@ public class IntroActivity extends LoadingDialogActivity {
             String action = intent.getAction();
             MainActivity.action = action;
             String type = intent.getType();
-            Uri uri = null;
+            Uri uri  ;
             if (action.equals(Intent.ACTION_SEND)) {
-
+                Log.d("인텐트타입",type);
                 uri = intent.getParcelableExtra(intent.EXTRA_STREAM);
+                //uri = intent.getData();
+                MainActivity.type = type;
                 MainActivity.uniUri = uri;
-
             }
            // progressON("Loading...");
-
-
-
-
 
             manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
