@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
     TextView oddDistance;
     TextView roadInfo;
-
+    Uri getVideoUri;
     public Double locationLat = null;
     public Double locationLon = null;
     private AdView mAdView;
@@ -492,12 +492,60 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
                 if (imgFile.exists()) {
                     cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                     uniBitmap = cameraBitmap;
-                    //      ivImage.setImageBitmap(cameraBitmap);
-                    iv.setImageBitmap(cameraBitmap);
-                    getImageDetail(cameraUrl);
-                    videoUri = null;
-                    // getImageDetail(getRealPathFromURI(mCapturedImageURI));
-                } else {
+
+                    try {
+                        ExifInterface exif = new ExifInterface(getImagePath(mCapturedImageURI));
+
+
+                        double alat = Math.abs(myLacationlatitude);
+                        String dms = Location.convert(alat, Location.FORMAT_SECONDS);
+                        String[] splits = dms.split(":");
+                        String[] secnds = (splits[2]).split("\\.");
+                        String seconds;
+                        if (secnds.length == 0) {
+                            seconds = splits[2];
+                        } else {
+                            seconds = secnds[0];
+                        }
+
+                        String latitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+                        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, latitudeStr);
+
+                        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, myLacationlatitude > 0 ? "N" : "S");
+
+
+                        double alon = Math.abs(myLacationlongitude);
+
+
+                        dms = Location.convert(alon, Location.FORMAT_SECONDS);
+                        splits = dms.split(":");
+                        secnds = (splits[2]).split("\\.");
+
+                        if (secnds.length == 0) {
+                            seconds = splits[2];
+                        } else {
+                            seconds = secnds[0];
+                        }
+                        String longitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+
+
+                        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, longitudeStr);
+                        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, myLacationlongitude > 0 ? "E" : "W");
+
+                        exif.saveAttributes();
+
+
+                        Toast.makeText(MainActivity.this, "위치값이 저장되었습니다.", Toast.LENGTH_SHORT).show();
+
+                        //      ivImage.setImageBitmap(cameraBitmap);
+                        iv.setImageBitmap(cameraBitmap);
+                        getImageDetail(cameraUrl);
+                        videoUri = null;
+                        // getImageDetail(getRealPathFromURI(mCapturedImageURI));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }else {
                     Toast.makeText(this, "나중에 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -508,7 +556,6 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
                 uniUri = galleryUri;
                 try {
                     galleryBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), galleryUri);
-
                     uniBitmap = galleryBitmap;
                     //    ivImage.setImageBitmap(galleryBitmap);
                     iv.setImageBitmap(galleryBitmap);
@@ -524,16 +571,13 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
             case video_Capture_REQUEST: {
                 videoUri = data.getData();
                 uniUri = videoUri;
-                videoView.setVideoURI(videoUri);
-                getImageDetail(getRealPathFromURI(videoUri));
-
+                    getImageDetail(getRealPathFromURI(videoUri));
                 break;
             }
-            //동영상 가져오기
+                //동영상 가져오기
             case video_REQUEST: {
                 videoUri = data.getData();
                 uniUri = videoUri;
-                videoView.setVideoURI(videoUri);
                 getImageDetail(getRealPathFromURI(videoUri));
                 break;
             }
@@ -800,46 +844,46 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
             dialog.setPositiveButton("여기닷!", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
 
-                    try {
-                        ExifInterface exif = new ExifInterface(getRealPathFromURI(galleryUri));
+                                           try {
+                            ExifInterface exif = new ExifInterface(getRealPathFromURI(uniUri));
 
 
-                        double alat = Math.abs(checkLat);
-                        String dms = Location.convert(alat, Location.FORMAT_SECONDS);
-                        String[] splits = dms.split(":");
-                        String[] secnds = (splits[2]).split("\\.");
-                        String seconds;
-                        if (secnds.length == 0) {
-                            seconds = splits[2];
-                        } else {
-                            seconds = secnds[0];
-                        }
+                            double alat = Math.abs(checkLat);
+                            String dms = Location.convert(alat, Location.FORMAT_SECONDS);
+                            String[] splits = dms.split(":");
+                            String[] secnds = (splits[2]).split("\\.");
+                            String seconds;
+                            if (secnds.length == 0) {
+                                seconds = splits[2];
+                            } else {
+                                seconds = secnds[0];
+                            }
 
-                        String latitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
-                        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, latitudeStr);
+                            String latitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+                            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, latitudeStr);
 
-                        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, checkLat > 0 ? "N" : "S");
-
-
-                        double alon = Math.abs(checkLong);
+                            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, checkLat > 0 ? "N" : "S");
 
 
-                        dms = Location.convert(alon, Location.FORMAT_SECONDS);
-                        splits = dms.split(":");
-                        secnds = (splits[2]).split("\\.");
-
-                        if (secnds.length == 0) {
-                            seconds = splits[2];
-                        } else {
-                            seconds = secnds[0];
-                        }
-                        String longitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+                            double alon = Math.abs(checkLong);
 
 
-                        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, longitudeStr);
-                        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, checkLong > 0 ? "E" : "W");
+                            dms = Location.convert(alon, Location.FORMAT_SECONDS);
+                            splits = dms.split(":");
+                            secnds = (splits[2]).split("\\.");
 
-                        exif.saveAttributes();
+                            if (secnds.length == 0) {
+                                seconds = splits[2];
+                            } else {
+                                seconds = secnds[0];
+                            }
+                            String longitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+
+
+                            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, longitudeStr);
+                            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, checkLong > 0 ? "E" : "W");
+
+                            exif.saveAttributes();
 
 
                         Toast.makeText(MainActivity.this, "위치값이 저장되었습니다.", Toast.LENGTH_SHORT).show();

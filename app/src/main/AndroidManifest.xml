@@ -57,6 +57,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".LoadingDialogActivity" />
+        <activity android:name=".Tap4Activity" />
     </application>
 
 </manifest>
