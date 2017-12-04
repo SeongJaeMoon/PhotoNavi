@@ -34,7 +34,6 @@ android {
         compile 'com.android.support:appcompat-v7:25.3.1'
         compile 'com.android.support.constraint:constraint-layout:1.0.2'
         testCompile 'junit:junit:4.12'
-        compile files('libs/libDaumMapAndroid.jar')
         compile 'com.android.support:design:25.3.1'
         apply plugin: 'build-announcements'
         compile 'com.google.android.gms:play-services-ads:11.2.0'
@@ -43,5 +42,7 @@ android {
 }
 dependencies {
     compile 'com.google.android.gms:play-services-ads:11.2.0'
+    compile 'com.github.bumptech.glide:glide:3.5.2'
+    implementation files('src/main/libs/libDaumMapAndroid.jar')
 }
 apply plugin: 'com.google.gms.google-services'

@@ -9,10 +9,18 @@ import android.support.v7.app.AppCompatActivity;
  */
 
 public class Tap4Activity extends AppCompatActivity {
+    private BackPressCloseHandler backPressCloseHandler;
+
+    @Override
+    public void onBackPressed() {
+        backPressCloseHandler.onBackPressed();
+
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tap4layout);
+        backPressCloseHandler = new BackPressCloseHandler(this);
     }
 }

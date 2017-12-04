@@ -6,11 +6,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,11 +22,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.CursorLoader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewManager;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
@@ -38,10 +43,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 
 import net.daum.android.map.coord.MapCoordLatLng;
 import net.daum.mf.map.api.CalloutBalloonAdapter;
@@ -65,10 +67,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MapView.MapViewEventListener,
-        MapView.CurrentLocationEventListener,
-        MapReverseGeoCoder.ReverseGeoCodingResultListener,
-        MapView.POIItemEventListener {
-
+                                                               MapView.CurrentLocationEventListener,
+                                                                MapReverseGeoCoder.ReverseGeoCodingResultListener,
+                                                                MapView.POIItemEventListener {
+    private static final String TAG = com.example.sungju1.photonavi.MainActivity.class.getSimpleName();
     private static final int CAMERA_REQUEST = 1000;
     private static final int GALLERY_REQUEST = 1001;
     private static final int video_REQUEST = 2001;
@@ -81,8 +83,8 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
     private MapReverseGeoCoder geoCoder;
     protected static String daumAPI_KEY = "30b632481ffc93211629d4ad18939df2";
     private MapPoint myLocatonPoint;
-    private Double myLacationlatitude;
-    private Double myLacationlongitude;
+    protected static Double myLacationlatitude;
+    protected static Double myLacationlongitude;
     private String setMarkerName;
 
     MapPoint MARKER_POINT;
@@ -121,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
     public String smsText;
 
     Intent reIntent;
-
+    static boolean pass = true ;
     boolean on = true;
     ImageButton mapTypeSet;
     ImageButton poiTypeSet;
@@ -244,55 +246,12 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
     public void onBackPressed() {
         //backPressCloseHandler.onBackPressed();
 
-        MobileAds.initialize(this, "ca-app-pub-4280928874742229/7604672524");
 
-        mAdView = (AdView) closedialog.findViewById(R.id.adView2);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-        mAdView.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-                Log.i("Ads", "onAdLoaded");
-            }
-
-            @Override
-            public void onAdFailedToLoad(int errorCode) {
-                // Code to be executed when an ad request fails.
-                Log.i("Ads", "onAdFailedToLoad");
-            }
-
-            @Override
-            public void onAdOpened() {
-                // Code to be executed when an ad opens an overlay that
-                // covers the screen.
-                Log.i("Ads", "onAdOpened");
-            }
-
-            @Override
-            public void onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-                Log.i("Ads", "onAdLeftApplication");
-            }
-
-            @Override
-            public void onAdClosed() {
-                // Code to be executed when when the user is about to return
-                // to the app after tapping on an ad.
-                Log.i("Ads", "onAdClosed");
-            }
-        });
         backPressCloseHandler.onBackPressed();
-        uniUri = null;
+      // uniUri = null;
     }
 
-    public void close2(View view) {
-        finish();
-    }
 
-    public void cancle2(View view) {
-        closedialog.cancel();
-    }
 
     LayoutInflater inflater;
     RelativeLayout relativeLayout;
@@ -300,8 +259,8 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
     RelativeLayout.LayoutParams layoutParams;
     Window window;
     public static String type;
-
-
+    ImageDBhelper imageDBhelper;
+    Cursor temp;
 
 
     @Override
@@ -322,6 +281,17 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
         backPressCloseHandler = new BackPressCloseHandler(this);
 
+        mapView = new MapView(this);
+        //다음이 제공하는 MapView객체 생성 및 API Key 설정
+        //mapView.setDaumMapApiKey(daumAPI_KEY);
+        //xml에 선언된 map_view 레이아웃을 찾아온 후, 생성한 MapView객체 추가
+        ViewGroup mapViewContainer = (ViewGroup) findViewById(R.id.map_view);
+        mapViewContainer.addView(mapView);
+
+
+
+
+
         reIntent = getIntent();
         //   uniUri = reIntent;
         myLacationlatitude = reIntent.getExtras().getDouble("lat");
@@ -329,13 +299,51 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
         mEditTextQuery = (EditText) findViewById(R.id.editTextQuery); // 검색창
         myLocatonPoint = MapPoint.mapPointWithGeoCoord(myLacationlatitude, myLacationlongitude);
 
-        mapView = new MapView(this);
-        //다음이 제공하는 MapView객체 생성 및 API Key 설정
-        mapView.setDaumMapApiKey(daumAPI_KEY);
-        //xml에 선언된 map_view 레이아웃을 찾아온 후, 생성한 MapView객체 추가
-        RelativeLayout container = (RelativeLayout) findViewById(R.id.map_view);
-        container.addView(mapView);
 
+
+        // RelativeLayout container = (RelativeLayout) findViewById(R.id.map_view);
+        // container.addView(mapView);
+
+
+            if (uniUri != null) {
+            Log.d("메인인텐트타입",type);
+                if (type == "image/*") {
+                    cameraUrl = getImagePath(uniUri);
+                    File imgFile = new File(cameraUrl);
+                    Log.d("비트맵이미지", "통과1");
+                    if (imgFile.exists()) {
+                        Log.e("비트맵", "통과");
+                        cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                        uniBitmap = cameraBitmap;
+
+
+                        iv.setImageBitmap(uniBitmap);
+                        getImageDetail(getRealPathFromURI(uniUri));
+                    }
+                } else if (type == "video/*") {
+                    getImageDetail(getVideoRealPathFromURI(uniUri));
+                } else {
+
+                    //    ivImage.setImageURI(uri);
+                    cameraUrl = getImagePath(uniUri);
+                    File imgFile = new File(cameraUrl);
+                    Log.d("비트맵", "통과1");
+                    if (imgFile.exists()) {
+                        Log.e("비트맵", "통과");
+                        cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                        uniBitmap = cameraBitmap;
+                    }
+
+//                    iv.setImageBitmap(uniBitmap);
+//                    iv.setImageURI(uniUri);
+                    getImageDetail(getRealPathFromURI(uniUri));
+                    //phoneNum.setText(action);
+                    // uniUri = uri;
+                }
+                //  iv.setImageBitmap(uniBitmap);
+                // getImageDetail(getRealPathFromURI(uniUri));
+
+        }
 
         //      ivImage = (ImageView) findViewById(R.id.iv_image); //메인 레이아웃 이미지뷰 현재 주석처리됨
         //      tvLocation = (TextView) findViewById(R.id.tv_location);
@@ -362,21 +370,9 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
         mapTypeSet = (ImageButton) findViewById(R.id.mapTypeSet);
         poiTypeSet = (ImageButton) findViewById(R.id.poiTypeSet);
 
-      /* reIntent = getIntent();
-       action = reIntent.getAction();
-       type = reIntent.getType();*/
-
-        if (uniUri != null) {
-            if (type == "image/*") {
-                iv.setImageURI(uniUri);
-                getImageDetail(getRealPathFromURI(uniUri));
-            }else{
-                getImageDetail(getVideoRealPathFromURI(uniUri));
-            }
-
-        }
 
         loadingDialogActivity = new LoadingDialogActivity();
+
         mButtonSearch = (Button) findViewById(R.id.buttonSearch); // 검색버튼
         mButtonSearch.setOnClickListener(new View.OnClickListener() { // 검색버튼 클릭 이벤트 리스너
             @Override
@@ -418,11 +414,57 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
         closedialog.setContentView(R.layout.closediolg);
 
 
+
         //검색창 숨기기
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.serchlayout);
         linearLayout.setVisibility(View.INVISIBLE);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+
+       if(pass == true) {
+           if (uniUri != null) {
+
+               if (type == "image/*") {
+                   cameraUrl = getImagePath(uniUri);
+                   File imgFile = new File(cameraUrl);
+                   Log.d("비트맵이미지", "통과1");
+                   if (imgFile.exists()) {
+                       Log.e("비트맵", "통과");
+                       cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                       uniBitmap = cameraBitmap;
+
+
+                       iv.setImageBitmap(uniBitmap);
+                       getImageDetail(getRealPathFromURI(uniUri));
+                   }
+               } else if (type == "video/*") {
+                   getImageDetail(getVideoRealPathFromURI(uniUri));
+               }else {
+
+                   //    ivImage.setImageURI(uri);
+                   cameraUrl = getImagePath(uniUri);
+                   File imgFile = new File(cameraUrl);
+                   Log.d("비트맵", "통과1");
+                   if (imgFile.exists()) {
+                       Log.e("비트맵", "통과");
+                       cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                       uniBitmap = cameraBitmap;
+                   }
+
+                   iv.setImageBitmap(uniBitmap);
+                   getImageDetail(getRealPathFromURI(uniUri));
+                   //phoneNum.setText(action);
+                   // uniUri = uri;
+               }
+               //  iv.setImageBitmap(uniBitmap);
+              // getImageDetail(getRealPathFromURI(uniUri));
+           }
+       }
+    }
 
     public void clickfab(View view) {
 
@@ -435,6 +477,8 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
                 if (items[item].equals("사진촬영")) {
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.Images.Media.TITLE, "PhotoNavi_");
+                    values.put("latitude", myLacationlatitude);
+                    values.put("longitude", myLacationlongitude);
                     mCapturedImageURI = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
                     uniUri = mCapturedImageURI;
                     Intent intentPicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -448,9 +492,11 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
                     startActivityForResult(intent, GALLERY_REQUEST);
 
                 } else if (items[item].equals("동영상촬영")) {
-                    ContentValues values = new ContentValues();
+                    ContentValues values = new ContentValues(4);
                     values.put(MediaStore.Video.Media.TITLE, "PhotoNavi_");
                     values.put(MediaStore.META_DATA_STILL_IMAGE_CAMERA_PREWARM_SERVICE, true);
+                    values.put("latitude", myLacationlatitude);
+                    values.put("longitude", myLacationlongitude);
                     mCapturedImageURI = getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
                     MainActivity.uniUri = mCapturedImageURI;
                     Intent intentVideo = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
@@ -492,11 +538,43 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
                 if (imgFile.exists()) {
                     cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                     uniBitmap = cameraBitmap;
+                    MainActivity.pass = true;
+                    iv.setImageBitmap(cameraBitmap);
+                    getImageDetail(cameraUrl);
+                }else {
+                    Toast.makeText(this, "나중에 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            }
+            // 갤러리가져오기
+            case GALLERY_REQUEST: {
+                galleryUri = data.getData();
+                uniUri = galleryUri;
+                try {
+                    galleryBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), galleryUri);
+                    uniBitmap = galleryBitmap;
+                    //    ivImage.setImageBitmap(galleryBitmap);
+                    iv.setImageBitmap(galleryBitmap);
+                    MainActivity.pass = true;
+                    getImageDetail(getRealPathFromURI(galleryUri));
+                    videoUri = null;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "나중에 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            }
+            //동영상  촬영
+            case video_Capture_REQUEST: {
+                Log.d("시발", String.valueOf(mCapturedImageURI));
+              /*  String vidioaUrl = getVideoPath(mCapturedImageURI);
+                videoUri = mCapturedImageURI;
 
-                    try {
-                        ExifInterface exif = new ExifInterface(getImagePath(mCapturedImageURI));
+                getImageDetail(vidioaUrl);*/
+                try {
+                        ExifInterface exif = new ExifInterface(getVideoPath(data.getData()));
 
-
+                    Log.d("동영상오류","1");
                         double alat = Math.abs(myLacationlatitude);
                         String dms = Location.convert(alat, Location.FORMAT_SECONDS);
                         String[] splits = dms.split(":");
@@ -507,7 +585,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
                         } else {
                             seconds = secnds[0];
                         }
-
+                    Log.d("동영상오류","2");
                         String latitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
                         exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, latitudeStr);
 
@@ -527,55 +605,28 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
                             seconds = secnds[0];
                         }
                         String longitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
-
+                    Log.d("동영상오류","3");
 
                         exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, longitudeStr);
                         exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, myLacationlongitude > 0 ? "E" : "W");
-
+                    Log.d("동영상오류","4");
                         exif.saveAttributes();
 
-
+                    Log.d("동영상오류","5");
                         Toast.makeText(MainActivity.this, "위치값이 저장되었습니다.", Toast.LENGTH_SHORT).show();
 
-                        //      ivImage.setImageBitmap(cameraBitmap);
-                        iv.setImageBitmap(cameraBitmap);
 
-                        videoUri = null;
-                        // getImageDetail(getRealPathFromURI(mCapturedImageURI));
                     } catch (IOException e) {
+                    Log.d("동영상오류","6");
                         e.printStackTrace();
-                    }getImageDetail(cameraUrl);
-                }else {
-                    Toast.makeText(this, "나중에 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            }
-            // 갤러리가져오기
-            case GALLERY_REQUEST: {
-                galleryUri = data.getData();
-                uniUri = galleryUri;
-                try {
-                    galleryBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), galleryUri);
-                    uniBitmap = galleryBitmap;
-                    //    ivImage.setImageBitmap(galleryBitmap);
-                    iv.setImageBitmap(galleryBitmap);
-                    getImageDetail(getRealPathFromURI(galleryUri));
-                    videoUri = null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Toast.makeText(this, "나중에 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            }
-            //동영상  촬영
-            case video_Capture_REQUEST: {
-                Log.d("시발", String.valueOf(mCapturedImageURI));
-              /*  String vidioaUrl = getVideoPath(mCapturedImageURI);
-                videoUri = mCapturedImageURI;
+                    }
 
-                getImageDetail(vidioaUrl);*/
+
+
+
                 videoUri = data.getData();
                 uniUri = videoUri;
+                MainActivity.pass = true;
                 getImageDetail(getVideoRealPathFromURI(videoUri));
                 break;
 
@@ -585,6 +636,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
             case video_REQUEST: {
                 videoUri = data.getData();
                 uniUri = videoUri;
+                MainActivity.pass = true;
                 getImageDetail(getVideoRealPathFromURI(videoUri));
                 break;
             }
@@ -599,14 +651,21 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
      */
     public String getVideoPath(Uri url) {
         try {
+Log.d("오류검사","1");
 
-            Cursor cursor = getContentResolver().query(url, null, null, null, null);
+            CursorLoader loader = new CursorLoader(getBaseContext(), videoUri, new String[]{MediaStore.Video.VideoColumns.TITLE}, null, null, null);
 
+            Cursor cursor = loader.loadInBackground();
+
+           // Cursor cursor = getContentResolver().query(url, null, null, null, null);
+            Log.d("오류검사","2");
             int column_index = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+            Log.d("오류검사","3");
             cursor.moveToFirst();
-
+            Log.d("오류검사","4");
             return cursor.getString(column_index);
         } catch (Exception e) {
+            Log.d("동영상 오류ㅅㅂ",url.getPath());
             return url.getPath();
         }
     }
@@ -655,16 +714,21 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
      */
     protected String getRealPathFromURI(Uri contentURI) {
         String result;
+        Log.d("리얼패스Uri",contentURI.getPath());
         Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
-        if (cursor == null) {
-            result = contentURI.getPath();
-        } else {
-            cursor.moveToFirst();
-            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-            result = cursor.getString(idx);
-            cursor.close();
-        }
+            if (cursor == null) {
+                result = contentURI.getPath();
+                Log.d("리얼패스Uri if", result);
+            } else {
+                cursor.moveToFirst();
+                int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                result = cursor.getString(idx);
+                Log.d("리얼패스Uri else", result);
+                cursor.close();
+            }
+
         return result;
+
     }
 
     /**
@@ -675,7 +739,33 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
 
     // file Final 로 인해서 상수로 만든다 else 부분에서 쓰기위하여
-    protected void getImageDetail( String file) {
+    protected  void getImageDetail(String file) {
+        boolean check = false; //값 존재체그용 변수
+
+        imageDBhelper = new ImageDBhelper(getApplicationContext());
+        imageDBhelper.open();
+        temp= imageDBhelper.fetchAllListOrderBYDec();
+        if(temp.getCount() ==0){
+            imageDBhelper.saveUri(getRealPathFromURI(uniUri));
+            temp.close();
+            imageDBhelper.close();
+        }else {
+            temp.moveToFirst();
+            while (temp.moveToNext()) {
+                if (temp.getString(0).equals(getRealPathFromURI(uniUri))) {
+                    check = true;//값이 이미 존재하면 TRUE
+                    Log.w(TAG, "Already Exists");
+                    break;
+                }
+            }
+            if (!check) { //값이 없으면 새로 저장
+                imageDBhelper.saveUri(getRealPathFromURI(uniUri));
+                Log.w(TAG, getRealPathFromURI(uniUri));
+                temp.close();
+                imageDBhelper.close();
+            }
+        }
+        pass = false;
         Double latitude = null;
         Double longitude ;
 
@@ -684,18 +774,21 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
             try {
                 GeoDegree geoDegree = new GeoDegree(exifInterface);
+                Log.d("공유" , "1");
                 locationArray = geoDegree.toString().split(",");
                 if (Double.valueOf(locationArray[0]) == 0.0) {
                     return;
                 } else {
                     MARKER_POINT = MapPoint.mapPointWithGeoCoord(Double.valueOf(locationArray[0]), Double.valueOf(locationArray[1]));
-
-                    geoCoder = new MapReverseGeoCoder(daumAPI_KEY, MARKER_POINT, MainActivity.this, MainActivity.this);
-                    geoCoder.startFindingAddress();
+                    Log.d("마커포인트",locationArray[0]);
+                   // geoCoder = new MapReverseGeoCoder(daumAPI_KEY, MARKER_POINT, MainActivity.this, MainActivity.this);
+                   ///         geoCoder.startFindingAddress();
+                    reverseGeoCoderFoundAddress();
                 }
 
             } catch (NumberFormatException | NullPointerException e) {
                 e.printStackTrace();
+                Log.e("공유받은1",e.getLocalizedMessage());
                 try {
 
 
@@ -704,7 +797,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
                         try {
                             cursor.moveToFirst();
-
+                            Log.d("공유" , "2");
 
                             latitude = cursor.getDouble(
                                     cursor.getColumnIndex(
@@ -715,47 +808,53 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
                         if (latitude != 0.0) {
                             MARKER_POINT = MapPoint.mapPointWithGeoCoord(latitude, longitude);
-                            geoCoder = new MapReverseGeoCoder(daumAPI_KEY, MARKER_POINT, MainActivity.this, MainActivity.this);
-                            geoCoder.startFindingAddress(); }
+                           // geoCoder = new MapReverseGeoCoder(daumAPI_KEY, MARKER_POINT, MainActivity.this, MainActivity.this);
+                          //  geoCoder.startFindingAddress();
+                            reverseGeoCoderFoundAddress();
                         }
-                        catch (Exception e1){
+                        } catch (Exception e1){
+                            Log.e("공유받은2",e.getMessage());
+                            if (latitude != 0.0) {
 
+                            }else {
 
-                            AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+                                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
 
-                            dialog.setTitle("사진에 위치정보가 없습니다.....");
+                                dialog.setTitle("사진에 위치정보가 없습니다.....");
+                                Log.d("공유", "3");
 
+                                // OK 버튼 이벤트
+                                dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
 
-                            // OK 버튼 이벤트
-                            dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
+                                        Toast.makeText(MainActivity.this, "공유받은 사진을 저장후 다시 한번 확인하거나 확인 버튼을 누른 후 위치를 수동으로 추가해주세요", Toast.LENGTH_SHORT).show();
+                                        // 위치 추가할떈 이거 푸셈
+                                        plusLocation = "GO";
 
-                                    Toast.makeText(MainActivity.this, "공유받은 사진을 저장후 다시 한번 확인하거나 확인 버튼을 누른 후 위치를 수동으로 추가해주세요", Toast.LENGTH_SHORT).show();
-                                    // 위치 추가할떈 이거 푸셈
-                                    plusLocation = "GO";
-
-                                }
-                            });
-                            // Cancel 버튼 이벤트
-                            dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    uniUri = null;
-                                    dialog.cancel();
-                                }
-                            });
-                            dialog.show();
-
+                                    }
+                                });
+                                // Cancel 버튼 이벤트
+                                dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        uniUri = null;
+                                        dialog.cancel();
+                                    }
+                                });
+                                dialog.show();
+                            }
                     }
                     Intent intent = getIntent();
                     if (Intent.ACTION_SEND.equals(action)) {
                         //Toast.makeText(this, "사진의 위치정보가 없습니다.", Toast.LENGTH_LONG).show();
                     }else if(latitude != 0.0) {
-                    }else{
+
+                    }
+                    else{
 
                             AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
 
                             dialog.setTitle("사진에 위치정보가 없습니다...    추가하시겠습니까?");
-
+                        Log.d("공유" , "4");
 
                             // OK 버튼 이벤트
                             dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -780,6 +879,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
                     //}
                     cursor.close();
+
                 } catch (NullPointerException i) {
                     i.printStackTrace();
 //                    phoneNum.setText(action);
@@ -792,9 +892,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
             Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
         }
 
-
     }
-
 
 
 
@@ -802,11 +900,9 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
     public void clickImage(View view) {
         if (uniUri == null) {
 
-            return;
-            // videodialog.show();
+                return;
 
-        }
-        if (videoUri == null) {
+        }else if (videoUri == null) {
             dialog.show();
         } else {
             Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -1049,6 +1145,28 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
     }
 
     //역 지오코딩 리스너등록
+    public void reverseGeoCoderFoundAddress() {
+        final Geocoder geocoder = new Geocoder(this);
+        List<Address> list = null;
+
+        try {
+            list = geocoder.getFromLocation(MARKER_POINT.getMapPointGeoCoord().latitude, MARKER_POINT.getMapPointGeoCoord().longitude, 10);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (list != null) {
+            if (list.size() == 0)
+                Toast.makeText(getApplicationContext(), "주소를 불러오는데 실패하였습니다.", Toast.LENGTH_SHORT).show();
+            else {
+
+                Toast.makeText(getApplicationContext(), list.get(0).getAddressLine(0), Toast.LENGTH_SHORT).show();
+                setMarkerName = "사진위치";
+                balloonText = String.valueOf((float) MARKER_POINT.getMapPointGeoCoord().latitude) + " , " + String.valueOf((float) MARKER_POINT.getMapPointGeoCoord().longitude) + list.get(0).getAddressLine(0);
+                //spEditext.setText(list.get(0).getAddressLine(0));
+                onMapMarkerPlus();
+            }
+        }
+    }
     @Override
     public void onReverseGeoCoderFoundAddress(MapReverseGeoCoder mapReverseGeoCoder, String geoCoderAddress) {
         photoAddress = geoCoderAddress;
@@ -1062,7 +1180,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
 
     @Override
     public void onReverseGeoCoderFailedToFindAddress(MapReverseGeoCoder mapReverseGeoCoder) {
-        Toast.makeText(this, "지오코딩에 실패하였습니다.", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "지오코딩에 실패하였습니다.", Toast.LENGTH_LONG).show();
     }
 
     //마커등록하기
@@ -1586,6 +1704,12 @@ JPEG 파일로 저장하는 과정이며 CompressFormat 2번째 인자는 퀄리
     }
 
 
+public void startMapPoint(String path){
+    cameraUrl = path;
+    getImageDetail(cameraUrl);
+    //this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+     //   getImageDetail(path);
+}
 
 
 }

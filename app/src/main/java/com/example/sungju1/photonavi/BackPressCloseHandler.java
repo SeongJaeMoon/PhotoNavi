@@ -2,7 +2,6 @@ package com.example.sungju1.photonavi;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdView;
@@ -36,7 +35,7 @@ public class BackPressCloseHandler extends Activity {
             toast.cancel();
         }*/
       //  dialog.show();
-        MainActivity.closedialog.show();
+        HomeActivity.closedialog.show();
     }
 
     public void showGuide() {

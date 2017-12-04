@@ -60,6 +60,8 @@
         </activity>
         <activity android:name=".LoadingDialogActivity" />
         <activity android:name=".Tap4Activity" />
+        <activity android:name=".Tap1Activity" />
+        <meta-data android:name="com.kakao.sdk.AppKey" android:value="c2e34af344c0392d04ae16d372147919"/>
     </application>
 
 </manifest>

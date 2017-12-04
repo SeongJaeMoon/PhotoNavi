@@ -38,67 +38,14 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:scaleType="centerInside"
-                            android:layout_weight="1"
-                            android:src="@drawable/homebanner2" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <ImageButton
-                            android:id="@+id/homebtn1"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:src="@drawable/homebtn1"
-                            android:backgroundTint="#00ff0000"/>
-
-                        <ImageButton
-                            android:id="@+id/homebtn2"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:src="@drawable/homebtn2"
-                            android:backgroundTint="#00ff0000"/>
-
-
-                        <ImageButton
-                            android:id="@+id/homebtn3"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:src="@drawable/homebtn3"
-                            android:backgroundTint="#00ff0000"/>
-
-                        <ImageButton
-                            android:id="@+id/homebtn4"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:src="@drawable/homebtn4"
-                            android:backgroundTint="#00ff0000"/>
-
-                    </LinearLayout>
-
-
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/tab2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"></LinearLayout>
+                    android:orientation="vertical">
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/tab3"
@@ -118,8 +65,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
-
-
                 </LinearLayout>
             </FrameLayout>
 

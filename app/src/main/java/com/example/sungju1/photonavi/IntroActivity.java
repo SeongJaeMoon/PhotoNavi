@@ -31,11 +31,12 @@ public class IntroActivity extends LoadingDialogActivity {
     public static final int RequestPermissionCode = 1;
     private BackPressCloseHandler backPressCloseHandler;
 
-  /*  @Override
+    @Override
     public void onBackPressed() {
-        //backPressCloseHandler.onBackPressed();
-        MainActivity.closedialog.show();
-    }*/
+        super.onBackPressed();
+     //   backPressCloseHandler.onBackPressed();
+       // MainActivity.closedialog.show();
+    }
 
     public Double locationLat = null;
     public Double locationLon = null;
@@ -94,6 +95,7 @@ public class IntroActivity extends LoadingDialogActivity {
                 //uri = intent.getData();
                 MainActivity.type = type;
                 MainActivity.uniUri = uri;
+                MainActivity.pass=false;
             }
            // progressON("Loading...");
 
