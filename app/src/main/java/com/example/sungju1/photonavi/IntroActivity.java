@@ -49,14 +49,18 @@ public class IntroActivity extends LoadingDialogActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.v("탭오류","인트로실행1");
+
         loadingDialogActivity = new LoadingDialogActivity();
 
         //권한부여
         if (checkPermission()&&chkGpsService()) {
+            Log.d("갤6 확인","인트로 진입");
             manager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            Log.d("갤6 확인","인트로 1");
             locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
+                    Log.d("갤6 확인","인트로 4");
                     locationLat = location.getLatitude();
                     locationLon = location.getLongitude();
                     manager.removeUpdates(locationListener);
@@ -65,6 +69,7 @@ public class IntroActivity extends LoadingDialogActivity {
                     intent.putExtra("lon", locationLon);
                    // progressOFF();
                     startActivity(intent);
+                    Log.d("갤6 확인","인트로탈출");
                     finish();
                 }
 
@@ -84,6 +89,7 @@ public class IntroActivity extends LoadingDialogActivity {
 
                 }
             };
+            Log.d("갤6 확인","인트로 3");
            intent = getIntent();
             String action = intent.getAction();
             MainActivity.action = action;
@@ -98,7 +104,7 @@ public class IntroActivity extends LoadingDialogActivity {
                 MainActivity.pass=false;
             }
            // progressON("Loading...");
-
+            Log.d("갤6 확인","인트로 2");
             manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 

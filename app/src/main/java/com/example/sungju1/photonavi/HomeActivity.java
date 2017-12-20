@@ -68,7 +68,9 @@ public class HomeActivity extends ActivityGroup {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d("갤6 확인","홈 진입");
         super.onCreate(savedInstanceState);
+        Log.d("갤6 확인","홈 진입2");
         setContentView(R.layout.activity_home);
 
         mainActivity = new MainActivity();

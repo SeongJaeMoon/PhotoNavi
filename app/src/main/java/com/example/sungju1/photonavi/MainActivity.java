@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
     public Double locationLon = null;
     private AdView mAdView;
     static Dialog closedialog;
+    public static String clickUri;
 
     @Override
     public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
@@ -425,45 +426,51 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
         super.onStart();
 
 
-       if(pass == true) {
-           if (uniUri != null) {
+    }
 
-               if (type == "image/*") {
-                   cameraUrl = getImagePath(uniUri);
-                   File imgFile = new File(cameraUrl);
-                   Log.d("비트맵이미지", "통과1");
-                   if (imgFile.exists()) {
-                       Log.e("비트맵", "통과");
-                       cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                       uniBitmap = cameraBitmap;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(pass == true) {
+            Log.d("온리즘패스","통과");
+            if (uniUri != null) {
 
+                Log.d("온리즘if","통과");
+                if (type == "image/*") {
+                    cameraUrl = getImagePath(uniUri);
+                    File imgFile = new File(cameraUrl);
+                    Log.d("비트맵이미지", "통과1");
+                    if (imgFile.exists()) {
+                        Log.e("비트맵", "통과");
+                        cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                        uniBitmap = cameraBitmap;
 
-                       iv.setImageBitmap(uniBitmap);
-                       getImageDetail(getRealPathFromURI(uniUri));
-                   }
-               } else if (type == "video/*") {
-                   getImageDetail(getVideoRealPathFromURI(uniUri));
-               }else {
+                        iv.setImageBitmap(uniBitmap);
+                        getImageDetail(getRealPathFromURI(uniUri));
+                    }
+                } else if (type == "video/*") {
+                    getImageDetail(getVideoRealPathFromURI(uniUri));
+                }else {
 
-                   //    ivImage.setImageURI(uri);
-                   cameraUrl = getImagePath(uniUri);
-                   File imgFile = new File(cameraUrl);
-                   Log.d("비트맵", "통과1");
-                   if (imgFile.exists()) {
-                       Log.e("비트맵", "통과");
-                       cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                       uniBitmap = cameraBitmap;
-                   }
+                    //    ivImage.setImageURI(uri);
+                    cameraUrl = getImagePath(uniUri);
+                    File imgFile = new File(cameraUrl);
+                    Log.d("비트맵", "통과1");
+                    if (imgFile.exists()) {
+                        Log.e("비트맵", "통과");
+                        cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                        uniBitmap = cameraBitmap;
+                    }
 
-                   iv.setImageBitmap(uniBitmap);
-                   getImageDetail(getRealPathFromURI(uniUri));
-                   //phoneNum.setText(action);
-                   // uniUri = uri;
-               }
-               //  iv.setImageBitmap(uniBitmap);
-              // getImageDetail(getRealPathFromURI(uniUri));
-           }
-       }
+                    iv.setImageBitmap(uniBitmap);
+                    getImageDetail(getRealPathFromURI(uniUri));
+                    //phoneNum.setText(action);
+                    // uniUri = uri;
+                }
+                //  iv.setImageBitmap(uniBitmap);
+                // getImageDetail(getRealPathFromURI(uniUri));
+            }
+        }
     }
 
     public void clickfab(View view) {
@@ -538,6 +545,49 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
                 if (imgFile.exists()) {
                     cameraBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
                     uniBitmap = cameraBitmap;
+                    try {
+                        ExifInterface exif = new ExifInterface(cameraUrl);
+
+                        double alat = Math.abs(myLacationlatitude);
+                        String dms = Location.convert(alat, Location.FORMAT_SECONDS);
+                        String[] splits = dms.split(":");
+                        String[] secnds = (splits[2]).split("\\.");
+                        String seconds;
+                        if (secnds.length == 0) {
+                            seconds = splits[2];
+                        } else {
+                            seconds = secnds[0];
+                        }
+                        String latitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+                        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, latitudeStr);
+
+                        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, myLacationlatitude > 0 ? "N" : "S");
+
+
+                        double alon = Math.abs(myLacationlongitude);
+
+
+                        dms = Location.convert(alon, Location.FORMAT_SECONDS);
+                        splits = dms.split(":");
+                        secnds = (splits[2]).split("\\.");
+
+                        if (secnds.length == 0) {
+                            seconds = splits[2];
+                        } else {
+                            seconds = secnds[0];
+                        }
+                        String longitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+
+                        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, longitudeStr);
+                        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, myLacationlongitude > 0 ? "E" : "W");
+                        exif.saveAttributes();
+
+                        Toast.makeText(MainActivity.this, "위치값이 저장되었습니다.", Toast.LENGTH_SHORT).show();
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     MainActivity.pass = true;
                     iv.setImageBitmap(cameraBitmap);
                     getImageDetail(cameraUrl);
@@ -571,55 +621,7 @@ public class MainActivity extends AppCompatActivity implements MapView.MapViewEv
                 videoUri = mCapturedImageURI;
 
                 getImageDetail(vidioaUrl);*/
-                try {
-                        ExifInterface exif = new ExifInterface(getVideoPath(data.getData()));
 
-                    Log.d("동영상오류","1");
-                        double alat = Math.abs(myLacationlatitude);
-                        String dms = Location.convert(alat, Location.FORMAT_SECONDS);
-                        String[] splits = dms.split(":");
-                        String[] secnds = (splits[2]).split("\\.");
-                        String seconds;
-                        if (secnds.length == 0) {
-                            seconds = splits[2];
-                        } else {
-                            seconds = secnds[0];
-                        }
-                    Log.d("동영상오류","2");
-                        String latitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
-                        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, latitudeStr);
-
-                        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, myLacationlatitude > 0 ? "N" : "S");
-
-
-                        double alon = Math.abs(myLacationlongitude);
-
-
-                        dms = Location.convert(alon, Location.FORMAT_SECONDS);
-                        splits = dms.split(":");
-                        secnds = (splits[2]).split("\\.");
-
-                        if (secnds.length == 0) {
-                            seconds = splits[2];
-                        } else {
-                            seconds = secnds[0];
-                        }
-                        String longitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
-                    Log.d("동영상오류","3");
-
-                        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, longitudeStr);
-                        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, myLacationlongitude > 0 ? "E" : "W");
-                    Log.d("동영상오류","4");
-                        exif.saveAttributes();
-
-                    Log.d("동영상오류","5");
-                        Toast.makeText(MainActivity.this, "위치값이 저장되었습니다.", Toast.LENGTH_SHORT).show();
-
-
-                    } catch (IOException e) {
-                    Log.d("동영상오류","6");
-                        e.printStackTrace();
-                    }
 
 
 
@@ -1613,6 +1615,8 @@ JPEG 파일로 저장하는 과정이며 CompressFormat 2번째 인자는 퀄리
                     sendIntent.setType("image/*");
                 } else if (uniUri.toString().contains("video")) {
                     sendIntent.setType("video/*");
+                }else {
+                    sendIntent.setType("image/*");
                 }
                // startActivity(Intent.createChooser(sendIntent, "선택해주세요"));
                 startActivity(sendIntent);

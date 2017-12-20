@@ -37,11 +37,11 @@ public class LoadingDialogSetting extends Application {
             progressSET(message);
         } else {
 
-            progressDialog = new AppCompatDialog(activity);
-            progressDialog.setCancelable(false);
-            progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-            progressDialog.setContentView(R.layout.loadingdialog);
-            progressDialog.show();
+            //progressDialog = new AppCompatDialog(activity);
+           // progressDialog.setCancelable(false);
+            //progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+           // progressDialog.setContentView(R.layout.loadingdialog);
+           // progressDialog.show();
 
         }
     }

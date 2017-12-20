@@ -17,8 +17,8 @@ public class fristDio extends View {
         super(context);
         setFocusable(true);
                 java.io.InputStream is;
-                is = context.getResources().openRawResource(R.drawable.locationtag);
-                mMovie = Movie.decodeStream(is);
+              //  is = context.getResources().openRawResource(R.drawable.locationtag);
+            //    mMovie = Movie.decodeStream(is);
             }
             @Override protected void onDraw(Canvas canvas) {
                 canvas.drawColor(0xFFCCCCCC);

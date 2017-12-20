@@ -18,7 +18,7 @@
                 android:layout_height="wrap_content"
                 android:scaleType="centerInside"
                 android:layout_weight="1"
-                android:src="@drawable/homebanner2" />
+                android:src="@drawable/homebanner4" />
         </LinearLayout>
 
         <LinearLayout
@@ -31,7 +31,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:src="@drawable/homebtn1"
+                android:src="@drawable/bluecamera"
                 android:backgroundTint="#00ff0000"/>
 
             <ImageButton
@@ -39,45 +39,34 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:src="@drawable/homebtn2"
+                android:src="@drawable/bluegallery"
                 android:backgroundTint="#00ff0000"/>
 
 
-            <ImageButton
-                android:id="@+id/homebtn3"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/homebtn3"
-                android:backgroundTint="#00ff0000"/>
-
-            <ImageButton
-                android:id="@+id/homebtn4"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/homebtn4"
-                android:backgroundTint="#00ff0000"/>
         </LinearLayout>
+
         <TextView
+            android:id="@+id/textPriority"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textPriority"
+            android:layout_gravity="center_horizontal"
+            android:text="최근 이용 사진"
             android:textColor="@color/colorPrimary"
             android:textSize="15sp"
             android:textStyle="italic"
-            android:layout_gravity="center_horizontal"/>
+            android:gravity="center"/>
         <GridView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:stretchMode="columnWidth"
-            android:verticalSpacing="5dp"
-            android:horizontalSpacing="5dp"
+            android:stretchMode="columnWidth"s
+            android:verticalSpacing="2dp"
+            android:horizontalSpacing="2dp"
             android:numColumns="auto_fit"
             android:columnWidth="100dp"
             android:layout_gravity="center"
-            android:id="@+id/grid">
+            android:id="@+id/grid"
+            >
         </GridView>
 
     </LinearLayout>

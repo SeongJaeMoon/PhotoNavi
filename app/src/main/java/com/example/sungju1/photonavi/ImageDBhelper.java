@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -96,6 +97,29 @@ public class ImageDBhelper {
         Cursor res = mDb.rawQuery("select * from " + DATABASE_TABLE + " order by " + KEY_ROWID + " desc", null);
         return res;
     }
+    String clickImageUri;
+    //클릭한 이미지 Uri 가져오기
+    public String fetchClickUri(int index){
+        Log.d("클릭uri","통과");
+        mDbHelper = new DatabaseHelper(mCtx);
+        mDb = mDbHelper.getReadableDatabase();
+        Log.d("클릭uri","통과1");
+        Cursor res = mDb.rawQuery("select * from " + DATABASE_TABLE + " order by " + KEY_ROWID + " desc" , null );
+        Log.d("클릭uri","통과2");
+        res.moveToFirst();
+        for (int i = 0; i <= index ; i++){
+            Log.d("클릭urifor문","통과");
+            clickImageUri  = res.getString(res.getColumnIndex(KEY_URI));
+
+          Log.d("클릭한이미지uri",clickImageUri);
+
+        res.moveToNext();
+        }
+        res.close();
+
+        return clickImageUri;
+    }
+
     //업데이트 클릭 수
     public Cursor updateList(String uri){
         mDbHelper = new DatabaseHelper(mCtx);

@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.location.Location;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,6 +23,7 @@ import android.widget.Toast;
 import com.google.android.gms.ads.AdView;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +66,7 @@ public class Tap1Activity extends AppCompatActivity {
 
 
         mainActivity = new MainActivity();
-        ImageDBhelper imageDBhelper = new ImageDBhelper(this); //ImageADBhelper 객체 생성
+        final ImageDBhelper imageDBhelper = new ImageDBhelper(this); //ImageADBhelper 객체 생성
         imageDBhelper.open(); //DB 오픈
         imageAdapters = imageDBhelper.fetchListOrdeBYDec(); //리스트에 내림차순으로 받아오기
         imageDBhelper.close(); //DB 닫기 (안 해주면 메모리 릭)
@@ -82,7 +85,7 @@ public class Tap1Activity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-
+        Log.d("갤6 확인","탭1 통과");
             mGridView = (GridView) findViewById(R.id.grid); // 그리드 뷰 연결
             GirdViewAdapter adapter = new GirdViewAdapter(com.example.sungju1.photonavi.Tap1Activity.this, mPathList,R.layout.grid_single); // 그리드 뷰 어뎁터 객체 생성자(context, 뿌릴 uri리스트, 그리드 싱글)
             mGridView.setAdapter(adapter);//그리드 뷰 어뎁터와 연결!
@@ -90,17 +93,25 @@ public class Tap1Activity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Toast.makeText(getApplicationContext(), "Grid Item " + (position + 1) + " Selected", Toast.LENGTH_LONG).show(); //그리드 뷰 아이템 클릭 리스너, position 0부터 시작
+                    String clickImageUri = imageDBhelper.fetchClickUri(position);
+                    MainActivity.pass = true;
+                    MainActivity.uniUri = Uri.parse(clickImageUri);
+                    MainActivity.clickUri = clickImageUri;
+                    HomeActivity.tabHost.setCurrentTab(1);
+                    Log.d("제발",clickImageUri);
                 }
             });
             imageDBhelper.close();
         }
 
-        ImageButton homeBtn1 = (ImageButton) findViewById(R.id.homebtn1);
+       /* ImageButton homeBtn1 = (ImageButton) findViewById(R.id.homebtn1);
         homeBtn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ContentValues values = new ContentValues();
                 values.put(MediaStore.Images.Media.TITLE, "PhotoNavi_");
+                values.put("latitude", MainActivity.myLacationlatitude);
+                values.put("longitude", MainActivity.myLacationlongitude);
                 mCapturedImageURI = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
                 MainActivity.uniUri = mCapturedImageURI;
                 Intent intentPicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -142,19 +153,86 @@ public class Tap1Activity extends AppCompatActivity {
                 //     intent.setType("video/*");
                 startActivityForResult(intent, video_REQUEST);
             }
+        });*/
+        ImageButton homeBtn1 = (ImageButton) findViewById(R.id.homebtn1);
+        homeBtn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.TITLE, "PhotoNavi_");
+                values.put("latitude", MainActivity.myLacationlatitude);
+                values.put("longitude", MainActivity.myLacationlongitude);
+                mCapturedImageURI = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                MainActivity.uniUri = mCapturedImageURI;
+                Intent intentPicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                intentPicture.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedImageURI);
+                startActivityForResult(intentPicture, CAMERA_REQUEST);
+            }
         });
-
+        ImageButton homeBtn2 = (ImageButton) findViewById(R.id.homebtn2);
+        homeBtn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                //intent.setType(android.provider.MediaStore.Images.Media.CONTENT_TYPE);
+                intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+                startActivityForResult(intent, GALLERY_REQUEST);
+            }
+        });
 
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_OK) {
+      /*  if (resultCode != RESULT_OK) {
             return;
         }
         // 사진, 갤러리, Crop
         switch (requestCode) {
             case CAMERA_REQUEST: {
+                try {
+                    ExifInterface exif = new ExifInterface(getRealPathFromURI(mCapturedImageURI));
+
+                    double alat = Math.abs(MainActivity.myLacationlatitude);
+                    String dms = Location.convert(alat, Location.FORMAT_SECONDS);
+                    String[] splits = dms.split(":");
+                    String[] secnds = (splits[2]).split("\\.");
+                    String seconds;
+                    if (secnds.length == 0) {
+                        seconds = splits[2];
+                    } else {
+                        seconds = secnds[0];
+                    }
+                    String latitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+                    exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, latitudeStr);
+
+                    exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, MainActivity.myLacationlatitude > 0 ? "N" : "S");
+
+
+                    double alon = Math.abs(MainActivity.myLacationlongitude);
+
+
+                    dms = Location.convert(alon, Location.FORMAT_SECONDS);
+                    splits = dms.split(":");
+                    secnds = (splits[2]).split("\\.");
+
+                    if (secnds.length == 0) {
+                        seconds = splits[2];
+                    } else {
+                        seconds = secnds[0];
+                    }
+                    String longitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+
+                    exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, longitudeStr);
+                    exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, MainActivity.myLacationlongitude > 0 ? "E" : "W");
+                    exif.saveAttributes();
+
+                    Toast.makeText(Tap1Activity.this, "위치값이 저장되었습니다.", Toast.LENGTH_SHORT).show();
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
               //  galleryUri = data.getData();
                 //MainActivity.uniUri = galleryUri;
                // mainActivity.getImageDetail(getRealPathFromURI(MainActivity.uniUri));
@@ -187,6 +265,72 @@ public class Tap1Activity extends AppCompatActivity {
                 break;
             }
 
+        }*/
+        if (resultCode != RESULT_OK) {
+            return;
+        }
+        // 사진, 갤러리, Crop
+        switch (requestCode) {
+            case CAMERA_REQUEST: {
+                try {
+                    ExifInterface exif = new ExifInterface(getRealPathFromURI(mCapturedImageURI));
+
+                    double alat = Math.abs(MainActivity.myLacationlatitude);
+                    String dms = Location.convert(alat, Location.FORMAT_SECONDS);
+                    String[] splits = dms.split(":");
+                    String[] secnds = (splits[2]).split("\\.");
+                    String seconds;
+                    if (secnds.length == 0) {
+                        seconds = splits[2];
+                    } else {
+                        seconds = secnds[0];
+                    }
+                    String latitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+                    exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, latitudeStr);
+
+                    exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, MainActivity.myLacationlatitude > 0 ? "N" : "S");
+
+
+                    double alon = Math.abs(MainActivity.myLacationlongitude);
+
+
+                    dms = Location.convert(alon, Location.FORMAT_SECONDS);
+                    splits = dms.split(":");
+                    secnds = (splits[2]).split("\\.");
+
+                    if (secnds.length == 0) {
+                        seconds = splits[2];
+                    } else {
+                        seconds = secnds[0];
+                    }
+                    String longitudeStr = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+
+                    exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, longitudeStr);
+                    exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, MainActivity.myLacationlongitude > 0 ? "E" : "W");
+                    exif.saveAttributes();
+
+                    Toast.makeText(Tap1Activity.this, "위치값이 저장되었습니다.", Toast.LENGTH_SHORT).show();
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //  galleryUri = data.getData();
+                //MainActivity.uniUri = galleryUri;
+                // mainActivity.getImageDetail(getRealPathFromURI(MainActivity.uniUri));
+                MainActivity.pass = true;
+                HomeActivity.tabHost.setCurrentTab(1);
+                break;
+            }
+            case GALLERY_REQUEST: {
+                galleryUri = data.getData();
+                MainActivity.uniUri = galleryUri;
+                // String galPath = getRealPathFromURI(galleryUri);
+                // mainActivity.startMapPoint(galPath);
+                MainActivity.pass = true;
+                HomeActivity.tabHost.setCurrentTab(1);
+                break;
+            }
         }
     }
 

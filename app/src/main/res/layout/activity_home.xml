@@ -72,7 +72,7 @@
                 android:id="@android:id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#88abda"></TabWidget>
+                android:background="#008fd7"></TabWidget>
         </LinearLayout>
     </TabHost>
 
