@@ -8,11 +8,13 @@ import android.net.Uri;
 
 public class ImageAdapter {
     private String uri;
-
-    public ImageAdapter(String uri){
+    private int click;
+    public ImageAdapter(String uri, int click){
         this.uri = uri;
+        this.click = click;
     }
     public String getUri(){
         return uri;
     }
+    public int getClick(){return click;}
 }

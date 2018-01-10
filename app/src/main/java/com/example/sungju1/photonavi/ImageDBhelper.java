@@ -32,7 +32,9 @@ public class ImageDBhelper {
     private static final String DATABASE_CREATE =
             "CREATE TABLE "+ DATABASE_TABLE +" ("
                     +KEY_ROWID+" INTEGER PRIMARY KEY AUTOINCREMENT, "
-                    +KEY_URI+" TEXT" + ");";
+                    +KEY_URI+" TEXT "
+                    +KEY_CLICK+" INTEGER"
+                    + ");";
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
         DatabaseHelper(Context context) {
@@ -67,6 +69,7 @@ public class ImageDBhelper {
     public long saveUri(String uri){
         ContentValues contentValues = new ContentValues();
         contentValues.put(KEY_URI, uri);
+        //contentValues.put();
         return mDb.insert(DATABASE_TABLE, null, contentValues);
     }
     //배열리스트에 값 내림차순으로 가져오기
@@ -80,13 +83,32 @@ public class ImageDBhelper {
         while (!res.isAfterLast()) {
             String uri = res.getString(res.getColumnIndex(KEY_URI));
             Log.w(TAG, uri);
-            imageAdapter.add(new ImageAdapter(uri));
+            imageAdapter.add(new ImageAdapter(uri , 0));
             res.moveToNext();
         }
         if (res.getCount()==0){
             return null;
         }
         res.close();
+        return imageAdapter;
+    }
+
+    public ArrayList<ImageAdapter> fetchListOrderBYClcik(){
+        mDbHelper = new DatabaseHelper(mCtx);
+        mDb = mDbHelper.getReadableDatabase();
+        imageAdapter = new ArrayList<>();
+        String raw = "select * from "+DATABASE_TABLE + "order by" + KEY_CLICK + "desc";
+        Cursor res = mDb.rawQuery(raw, null);
+        res.moveToFirst();
+        while(!res.isAfterLast()){
+            int click = res.getInt(res.getColumnIndex(KEY_CLICK));
+            String uri = res.getString(res.getColumnIndex(KEY_URI));
+            imageAdapter.add(new ImageAdapter(uri, click));
+            res.moveToNext();
+        }
+        if(res.getCount()==0){
+            return null;
+        }
         return imageAdapter;
     }
 
@@ -110,7 +132,6 @@ public class ImageDBhelper {
         for (int i = 0; i <= index ; i++){
             Log.d("클릭urifor문","통과");
             clickImageUri  = res.getString(res.getColumnIndex(KEY_URI));
-
           Log.d("클릭한이미지uri",clickImageUri);
 
         res.moveToNext();
@@ -120,6 +141,7 @@ public class ImageDBhelper {
         return clickImageUri;
     }
 
+
     //업데이트 클릭 수
     public Cursor updateList(String uri){
         mDbHelper = new DatabaseHelper(mCtx);
@@ -128,6 +150,15 @@ public class ImageDBhelper {
         Cursor res = mDb.rawQuery(sql,null);
         return res;
     }
+
+    public void update(String id){
+        mDbHelper = new DatabaseHelper(mCtx);
+        mDb = mDbHelper.getWritableDatabase();
+        String sql = "update "+ DATABASE_TABLE +" set "+KEY_CLICK +"="+ KEY_CLICK+1 +" where "+KEY_ROWID+"="+id;
+        mDb.execSQL(sql);
+        mDb.close();
+    }
+
     public int removeList(int id){
         mDbHelper = new DatabaseHelper(mCtx);
         mDb = mDbHelper.getReadableDatabase();
