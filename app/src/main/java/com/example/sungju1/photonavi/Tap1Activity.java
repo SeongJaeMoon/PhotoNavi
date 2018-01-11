@@ -77,7 +77,7 @@ public class Tap1Activity extends AppCompatActivity {
                 try {
                     File imgFile = new File(obj.getUri());
                     basePath = imgFile.getPath();
-                    if (basePath != null && basePath.length() > 0) {
+                    if (basePath.length() > 0) {
                         mPathList.add(basePath); //리스트형 값 리턴
                         Log.w(TAG, basePath);
                     }

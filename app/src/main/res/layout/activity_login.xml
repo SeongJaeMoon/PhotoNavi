@@ -1,9 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.sungju1.photonavi.LoginActivity">
 
-</android.support.constraint.ConstraintLayout>
+    <EditText
+        android:id="@+id/xetEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/xetPassword"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/tv_style"
+        android:ems="10"
+        android:hint="@string/email"
+        android:inputType="textEmailAddress"
+        android:padding="15dp"
+        android:textColorHint="@color/common_google_signin_btn_text_light_focused" />
+
+    <EditText
+        android:id="@+id/xetPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/xbtnLogIn"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@drawable/tv_style"
+        android:ems="10"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:padding="15dp"
+        android:textColorHint="@color/common_google_signin_btn_text_light_focused" />
+
+    <Button
+        android:id="@+id/xbtnLogIn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/xbtnKakaoSignIn"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@drawable/login_btn_style"
+        android:text="@string/SignIn"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/xbtnKakaoSignIn"
+        android:layout_width="80sp"
+        android:layout_height="55sp"
+        android:layout_above="@+id/xbtnNewAccount"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/kakaolink_btn_medium_ov"
+        android:layout_marginStart="90sp">
+    </Button>
+    <Button
+        android:id="@+id/xbtnNaverSingin"
+        android:layout_width="80sp"
+        android:layout_height="55sp"
+        android:background="@drawable/naver"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/xbtnNewAccount"
+        android:layout_marginStart="190sp"/>
+
+    <TextView
+        android:id="@+id/xbtnNewAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="95dp"
+        android:text="@string/newAccount"
+        android:textAllCaps="false"
+        android:textColor="@color/common_google_signin_btn_text_light_default"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/xbtnForgotAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="215dp"
+        android:text="@string/forgotAccount"
+        android:textAllCaps="false"
+        android:textColor="@color/common_google_signin_btn_text_light_default"
+        android:textSize="15sp" />
+    <ImageView
+        android:contentDescription="@string/app_name"
+        android:id="@+id/imageView"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp"
+        app:srcCompat="@drawable/photo_navi_icon" />
+
+    <ProgressBar
+        android:id="@+id/progressbar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:max="100"
+        android:backgroundTint="@color/white"
+        android:layout_marginTop="-7dp"/>
+</RelativeLayout>

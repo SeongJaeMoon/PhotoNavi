@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -152,11 +153,16 @@ public class ImageDBhelper {
     }
 
     public void update(String id){
-        mDbHelper = new DatabaseHelper(mCtx);
-        mDb = mDbHelper.getWritableDatabase();
-        String sql = "update "+ DATABASE_TABLE +" set "+KEY_CLICK +"="+ KEY_CLICK+1 +" where "+KEY_ROWID+"="+id;
-        mDb.execSQL(sql);
-        mDb.close();
+        try {
+            mDbHelper = new DatabaseHelper(mCtx);
+            mDb = mDbHelper.getWritableDatabase();
+            String sql = "update " + DATABASE_TABLE + " set " + KEY_CLICK + "=" + KEY_CLICK + 1 + " where " + KEY_ROWID + "=" + id;
+            mDb.execSQL(sql);
+        }catch(SQLException e){
+            Toast.makeText(mCtx, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }finally {
+            mDb.close();
+        }
     }
 
     public int removeList(int id){
