@@ -79,6 +79,7 @@ public class ImageDBhelper {
         mDb = mDbHelper.getReadableDatabase();
         imageAdapter = new ArrayList<>();
         String raw = "select * from " + DATABASE_TABLE + " order by " + KEY_ROWID + " desc";
+        //String raw1 = "select " + KEY_ROWID+", "+ KEY_URI +", "+ KEY_CLICK +" from " + DATABASE_TABLE + " group by "+ KEY_ROWID+ " order by " + KEY_ROWID + " desc ";
         Cursor res = mDb.rawQuery(raw,null); //id를 기준으로 내림차순
         res.moveToFirst();
         while (!res.isAfterLast()) {
@@ -120,6 +121,7 @@ public class ImageDBhelper {
         Cursor res = mDb.rawQuery("select * from " + DATABASE_TABLE + " order by " + KEY_ROWID + " desc", null);
         return res;
     }
+
     String clickImageUri;
     //클릭한 이미지 Uri 가져오기
     public String fetchClickUri(int index){
